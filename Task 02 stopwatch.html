@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modern Stopwatch</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(to right, #141e30, #243b55);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      padding: 40px 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .time-display {
+      font-size: 3.2rem;
+      font-weight: bold;
+      margin-bottom: 30px;
+      text-shadow: 0 0 8px #00eaff;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .buttons button {
+      background: transparent;
+      border: 2px solid #00eaff;
+      color: #00eaff;
+      padding: 10px 20px;
+      margin: 8px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .buttons button:hover {
+      background: #00eaff;
+      color: #000;
+      box-shadow: 0 0 10px #00eaff;
+      transform: scale(1.05);
+    }
+
+    .laps {
+      max-height: 150px;
+      overflow-y: auto;
+      text-align: left;
+      margin-top: 25px;
+      padding: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .lap-item {
+      font-size: 0.95rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 5px 0;
+    }
+
+    @media (max-width: 480px) {
+      .time-display {
+        font-size: 2.5rem;
+      }
+
+      .buttons button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="time-display" id="display">00:00:00.00</div>
+
+    <div class="buttons">
+      <button onclick="startTimer()">Start</button>
+      <button onclick="pauseTimer()">Pause</button>
+      <button onclick="resetTimer()">Reset</button>
+      <button onclick="recordLap()">Lap</button>
+    </div>
+
+    <div class="laps" id="laps"></div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval;
+    let isRunning = false;
+
+    function timeToString(time) {
+      let hrs = Math.floor(time / 3600000);
+      let mins = Math.floor((time % 3600000) / 60000);
+      let secs = Math.floor((time % 60000) / 1000);
+      let ms   = Math.floor((time % 1000) / 10);
+
+      return (
+        (hrs < 10 ? "0" + hrs : hrs) + ":" +
+        (mins < 10 ? "0" + mins : mins) + ":" +
+        (secs < 10 ? "0" + secs : secs) + "." +
+        (ms < 10 ? "0" + ms : ms)
+      );
+    }
+
+    function printTime(txt) {
+      document.getElementById("display").textContent = txt;
+    }
+
+    function startTimer() {
+      if (!isRunning) {
+        isRunning = true;
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => {
+          elapsedTime = Date.now() - startTime;
+          printTime(timeToString(elapsedTime));
+        }, 10);
+      }
+    }
+
+    function pauseTimer() {
+      if (isRunning) {
+        isRunning = false;
+        clearInterval(timerInterval);
+      }
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      elapsedTime = 0;
+      printTime("00:00:00.00");
+      document.getElementById("laps").innerHTML = "";
+    }
+
+    function recordLap() {
+      if (!isRunning) return;
+      const lapTime = timeToString(elapsedTime);
+      const lapItem = document.createElement("div");
+      lapItem.className = "lap-item";
+      lapItem.textContent = "Lap: " + lapTime;
+      document.getElementById("laps").prepend(lapItem);
+    }
+  </script>
+
+</body>
+</html>
